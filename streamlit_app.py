@@ -8,3 +8,6 @@ def main():
 
     st.sidebar()
     st.dataframe(df)
+
+if __name__ == "main":
+    main()
