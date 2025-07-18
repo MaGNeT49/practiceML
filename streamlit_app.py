@@ -3,54 +3,51 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap, cm
 import numpy as np
+import altair as alt
+from vega_datasets import data
+import geopandas as gpd
+
 
 def main():
     df = pd.read_csv("table.csv")
     st.title("Трилобиты")
     st.dataframe(df)
 
-    st.pyplot(showMap(df))
+    #map = showMap(df)
+
+    #st.altair_chart(map)
 
 
-def showMap(data):
-    # max_age_mya = data['max_age_mya']
+def showMap(df):
+    data = df
+    # gdf_world = gpd.read_file(data.world_110m.url, driver="TopoJSON")
 
-    # lons = data["longitude"]
-    # lats = data["latitude"]
+    # defintion for interactive brush
+    brush = alt.selection_interval(
+        encodings=["longitude"],
+        empty=False,
+        value={"longitude": [-50, -110]}
+    )
 
-    # parallels = np.arange(-90,90,30)
-    # meridians = np.arange(0,360,30)
+    # world disk
+    sphere = alt.Chart(alt.sphere()).mark_geoshape(
+        fill="transparent", stroke="lightgray", strokeWidth=1
+    )
 
-    # map = Basemap(projection="mill", lon_0=0)
+    # # countries as shapes
+    # world = alt.Chart(data).mark_geoshape(fill="lightgray", stroke="white", strokeWidth=0.1)
 
-    # x, y = map(lons, lats)
+    quakes = alt.Chart(data).transform_calculate(
+    lon="longitude",
+    lat="latitude",
+).mark_circle(opacity=0.35, tooltip=True).encode(
+    longitude="lon:Q",
+    latitude="lat:Q",
+    color=alt.when(brush).then(alt.value("goldenrod")).otherwise(alt.value("steelblue")),
+    size=alt.Size("mag:Q").scale(type="pow", range=[1, 1000], domain=[0, 7], exponent=4),
+).add_params(brush)
 
-    # map.drawparallels(parallels, linewidth=0.5, labels=[1, 0, 0, 0], fontsize=4)
-    # map.drawmeridians(meridians, linewidth=0.5, labels=[0, 0, 0, 1], fontsize=4)
-    # map.drawcoastlines(linewidth=0.25)
-    # map.drawcountries(linewidth=0.25)
-    # map.drawmapboundary(fill_color="#5cd4d4")
-
-    # map.fillcontinents(color="#c7765e", lake_color="#5cd4d4")
-
-    # map.scatter(x, y, 0.1, marker='o', c=max_age_mya, cmap="viridis")
-
-    # plt.title("Координаты раскопок окаменелостей трилобитов")
-    # plt.colorbar(location="bottom", label='Средней возраст\n окаменелостей в миллионах лет')
-    # plt.scatter(x, y, 0.1, marker='o', c=ages_mean, cmap="viridis")
-
-    # fig, axes = plt.subplot()
-
-    # axes.scatter(x, y, 0.1, marker='o', c=max_age_mya, cmap="viridis")
-    # axes.colorbar(location="bottom", label='Средней возраст\n окаменелостей в миллионах лет')
-    # axes.title("Координаты раскопок окаменелостей трилобитов")
-    
-    arr = np.random.normal(1, 1, size=100)
-    fig, ax = plt.subplots()
-    ax.scatter(arr, arr)
-
-    return fig
-
+    return quakes
 
 if __name__ == "__main__":
     main()
