@@ -3,7 +3,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 
 
-def DownloadUrls():
+def download_urls():
     try:
         response = requests.get("https://ratcatcher.ru/media/summer_prac/parcing/25/index.html")
         if response.status_code == 200:
@@ -32,7 +32,7 @@ def get_urls():
     return urls
 
 
-def get_head():
+def get_head_table():
     try:
         response = requests.get(get_urls()[0])
 
@@ -87,10 +87,11 @@ def get_all_element_table():
     return elements
 
 
-def download_table_to_csv():
-    df = pd.DataFrame(get_all_element_table(), columns=get_head())
+def upload_table_to_csv():
+    df = pd.DataFrame(get_all_element_table(), columns=get_head_table())
 
     df.to_csv('table.csv', index=False)
 
 
-download_table_to_csv()
+if (__name__ == "__main__"):
+    upload_table_to_csv()
