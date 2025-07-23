@@ -27,8 +27,15 @@ def main():
 
 
 def getFigureMap(df):
-    fig = px.scatter_map(df, "latitude", "longitude", "max_age_mya", hover_name="scientific_name", zoom=1, color_continuous_scale=px.colors.carto.Temps)
-    # fig.update_traces(cluster=dict(enabled=True))
+    fig = px.scatter_map(df, 
+                         lat="latitude", 
+                         lon="longitude", 
+                         color="max_age_mya", 
+                         hover_name="scientific_name", 
+                         hover_data=["country"], 
+                         zoom=1, 
+                         color_continuous_scale="viridis")
+
 
     return fig
 
